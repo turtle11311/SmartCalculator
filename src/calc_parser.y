@@ -54,16 +54,16 @@ expression          : NUMBER { $$ = $1; }
                             exit(EXIT_FAILURE);
                         }
                     }
-                    | INC IDENTIFIER
+                    | '+' '+' IDENTIFIER
                     {
                         try {
-                            $$ = ++variableTable.at($2);
+                            $$ = ++variableTable.at($3);
                         } catch (std::out_of_range &exct) {
-                            printf("Line %d: %s is undefined\n", yylineno, $2);
+                            printf("Line %d: %s is undefined\n", yylineno, $3);
                             exit(EXIT_FAILURE);
                         }
                     }
-                    | IDENTIFIER INC
+                    | IDENTIFIER '+' '+'
                     {
                         try {
                             $$ = variableTable.at($1)++;
@@ -72,17 +72,16 @@ expression          : NUMBER { $$ = $1; }
                             exit(EXIT_FAILURE);
                         }
                     }
-                    | DEC IDENTIFIER
+                    | '-' '-' IDENTIFIER
                     {
                         try {
-                            $$ = --variableTable.at($2);
+                            $$ = --variableTable.at($3);
                         } catch (std::out_of_range &exct) {
-                            printf("Line %d: %s is undefined\n", yylineno, $2);
+                            printf("Line %d: %s is undefined\n", yylineno, $3);
                             exit(EXIT_FAILURE);
                         }
-
                     }
-                    | IDENTIFIER DEC
+                    | IDENTIFIER '-' '-'
                     {
                         try {
                             $$ = variableTable.at($1)--;
@@ -90,7 +89,6 @@ expression          : NUMBER { $$ = $1; }
                             printf("Line %d: %s is undefined\n", yylineno, $1);
                             exit(EXIT_FAILURE);
                         }
-
                     }
                     | IDENTIFIER '(' expression ')'
                     {
@@ -99,6 +97,7 @@ expression          : NUMBER { $$ = $1; }
                         else if (!strcmp("log", $1)) $$ = log10($3);
                         else if (!strcmp("abs", $1)) $$ = abs($3);
                         else if (!strcmp("neg", $1)) $$ = -$3;
+                        else printf("Line %d: %s is undefined\n", yylineno, $1), exit(EXIT_FAILURE);
                     }
                     | '(' expression ')' { $$ = $2; }
                     | '-' expression %prec UMINUS { $$ = -$2; }
@@ -111,5 +110,6 @@ expression          : NUMBER { $$ = $1; }
                     ;
 %%
 int main () {
+    yylineno--;
     yyparse();
 }
