@@ -22,10 +22,8 @@ int yyerror(const char* errmsg) {
 %left '+' '-'
 %left '*' '/' '%'
 %left '^'
-%right UMINUS
-%right ACTIONS
 
-%token NL INC DEC
+%token NL INCREMENT DECREMENT
 %token <varValue> NUMBER
 %token <identifier> IDENTIFIER
 
@@ -37,7 +35,7 @@ interpretor         : interpretor oneline
                     | oneline
                     ;
 
-oneline             : /* Empty line */
+oneline             : NL /* Empty line */
                     | statement NL { printf("%.6lf\n", $1); }
                     ;
 
@@ -75,16 +73,16 @@ expression          : NUMBER { $$ = $1; }
                     | expression '^' expression { $$ = pow($1, $3); }
                     ;
 
-actions             : '+' '+' IDENTIFIER
+actions             : INCREMENT IDENTIFIER
                     {
                         try {
-                            $$ = ++variableTable.at($3);
+                            $$ = ++variableTable.at($2);
                         } catch (std::out_of_range &exct) {
-                            printf("Line %d: %s is undefined\n", yylineno, $3);
+                            printf("Line %d: %s is undefined\n", yylineno, $2);
                             exit(EXIT_FAILURE);
                         }
                     }
-                    | IDENTIFIER '+' '+'
+                    | IDENTIFIER INCREMENT
                     {
                         try {
                             $$ = variableTable.at($1)++;
@@ -93,16 +91,16 @@ actions             : '+' '+' IDENTIFIER
                             exit(EXIT_FAILURE);
                         }
                     }
-                    | '-' '-' IDENTIFIER
+                    | DECREMENT IDENTIFIER
                     {
                         try {
-                            $$ = --variableTable.at($3);
+                            $$ = --variableTable.at($2);
                         } catch (std::out_of_range &exct) {
-                            printf("Line %d: %s is undefined\n", yylineno, $3);
+                            printf("Line %d: %s is undefined\n", yylineno, $2);
                             exit(EXIT_FAILURE);
                         }
                     }
-                    | IDENTIFIER '-' '-'
+                    | IDENTIFIER DECREMENT
                     {
                         try {
                             $$ = variableTable.at($1)--;

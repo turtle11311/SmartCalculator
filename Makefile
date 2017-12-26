@@ -2,7 +2,7 @@ CC = gcc
 CXX = g++
 CXXFLAGS += -g -std=c++11 -Wall -Isrc/
 LEX = flex
-YACC = bison
+YACC = bison -r states
 LDFLAGS += -lfl
 VPATH = src:build
 BUILDDIR = build
